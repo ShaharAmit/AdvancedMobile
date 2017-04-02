@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "630853632238",
+    "firebase_url": "https://advancedmobile-6e8f6.firebaseio.com",
+    "project_id": "advancedmobile-6e8f6",
+    "storage_bucket": "advancedmobile-6e8f6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630853632238:android:928fd7d600d97259",
+        "android_client_info": {
+          "package_name": "com.example.shahar.advancedmobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "630853632238-c5297n3cehl9t21hducgaqk3ctge6nlb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.shahar.advancedmobile",
+            "certificate_hash": "137b81e97579490748734585c3e81f673199f59e"
+          }
+        },
+        {
+          "client_id": "630853632238-qqkentb4j3a6ahroomtg37hl0reu0rql.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCigsh1-dm__Fos8BYeK84jPGLBG_oxSlI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "630853632238-qqkentb4j3a6ahroomtg37hl0reu0rql.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
