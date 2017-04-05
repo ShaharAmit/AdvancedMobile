@@ -1,5 +1,7 @@
 package com.example.shahar.advancedmobile;
 
+import java.util.Arrays;
+
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -22,22 +24,18 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.Arrays;
-
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link AuthenticationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class AuthenticationFragment extends Fragment {
-    public static final int RC_SIGN_IN = 765;
+    public static final int RC_SIGN_IN = 234;
     private static final String TAG = AuthenticationFragment.class.getSimpleName();
-    private static final String DB_NAME = "users";
+    private static final String DB_NAME = "messages";
     EditText editText;
     TextView usernameTv;
     Button buttonLogin;
-    private boolean signedIn = false;
 
     public AuthenticationFragment() {
         // Required empty public constructor
@@ -58,17 +56,12 @@ public class AuthenticationFragment extends Fragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-
-        signedIn = auth.getCurrentUser() != null;
-    }
-
-
-    /*@Subscribe(threadMode = ThreadMode.MAIN)
+    /**
+     * don't forget to register and unregister in start/stop
+     *
+     * @param event b
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void gotNewBoardMessage(BoardMessage event) {
         if (editText != null) {
             editText.setText(event.getMessage());
@@ -76,22 +69,23 @@ public class AuthenticationFragment extends Fragment {
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void gotSignEvent(SignEvent event) {
-        Log.i(TAG, "got sticky sign " + event.getData() + " event");
+    public void gotSignEvent(CurrentUser event) {
+        Log.i(TAG, "got sticky sign " + event.getUserData() + " event");
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+//        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser currentUser = event.getUserData();
 
-        if (currentUser == null) {
+        if (currentUser == null || event.isAnonymous()) {
             // logged out
-            usernameTv.setText("Please login");
+            usernameTv.setText(R.string.please_login);
             buttonLogin.setText(R.string.login);
         } else {
-            usernameTv.setText("Hello " + currentUser.getDisplayName());
+            usernameTv.setText("Hi " + currentUser.getDisplayName());
             Log.i(TAG, "user id is " + currentUser.getUid());
             buttonLogin.setText(R.string.logout);
         }
 
-    }*/
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,17 +95,15 @@ public class AuthenticationFragment extends Fragment {
 
         editText = (EditText) view.findViewById(R.id.editText);
 
-/*
-        FirebaseHelper.wireFirebase(DB_NAME, BoardMessage.class);
-*/
+        FirebaseHelper.wireSomeFirebaseTable(DB_NAME, BoardMessage.class);
 
         View buttonSend = view.findViewById(R.id.button_send);
-        /*buttonSend.setOnClickListener(new View.OnClickListener() {
+        buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseHelper.saveInFirebase(DB_NAME, editText.getText().toString());
+                FirebaseHelper.saveBoardMessageInFirebase(DB_NAME, editText.getText().toString());
             }
-        });*/
+        });
 
         usernameTv = (TextView) view.findViewById(R.id.tv_user);
         buttonLogin = (Button) view.findViewById(R.id.button_login);
@@ -123,29 +115,17 @@ public class AuthenticationFragment extends Fragment {
             }
         });
 
-
-/*
-        EventBus.getDefault().postSticky(new SignEvent("unknown"));
-*/
+        Log.i(TAG, "onCreateView: postSticky user");
+        EventBus.getDefault().postSticky(FirebaseHelper.getCurrentUser());
 
         return view;
     }
 
     private void doSignInOutToggle() {
-        if (signedIn) {
+        if (!FirebaseHelper.getCurrentUser().isAnonymous()) {
             // sign out
             AuthUI.getInstance()
-                    .signOut(AuthenticationFragment.this.getActivity())
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Toast.makeText(getContext(), "You're now signed out", Toast.LENGTH_SHORT).show();
-                            signedIn = false;
-/*
-                            EventBus.getDefault().postSticky(new SignEvent("out"));
-*/
-                        }
-                    });
+                    .signOut(AuthenticationFragment.this.getActivity());
 
         } else {
 
@@ -157,7 +137,7 @@ public class AuthenticationFragment extends Fragment {
                                     new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()
                             ))
                             .build(),
-                    RC_SIGN_IN);
+                    RC_SIGN_IN); // this callback code is not really needed - we're listening to auth changes
         }
     }
 
@@ -174,3 +154,4 @@ public class AuthenticationFragment extends Fragment {
     }
 
 }
+
